@@ -34,7 +34,7 @@ const History = () => {
             setError('User is not logged in. Please log in to view your history.');
             navigate('/');
         }
-    }, [user]);
+    }, [user, navigate]);
 
     return (
         <div className="history-container">

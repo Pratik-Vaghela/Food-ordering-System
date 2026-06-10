@@ -28,7 +28,7 @@ const Payment = () => {
                         }))
                     };
 
-                    const response = await axios.post(`${API_BASE_URL}/api/cart/`, payload);
+                    await axios.post(`${API_BASE_URL}/api/cart/`, payload);
 
                     // Clear the cart items
                     clearCart();
