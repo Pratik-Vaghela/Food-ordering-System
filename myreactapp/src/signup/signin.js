@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';  
 import './signin.css'; 
 import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../config';
 
 const UserForm = () => {
     const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ const UserForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:8000/api/User/', {
+            const response = await fetch(`${API_BASE_URL}/api/User/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

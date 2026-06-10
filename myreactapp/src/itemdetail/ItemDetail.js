@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './itemDetail.css';
+import { API_BASE_URL } from '../config';
 
 const ItemDetail = () => {
     const { id } = useParams(); // Get the ID from the URL
@@ -13,7 +14,7 @@ const ItemDetail = () => {
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/menu/'); // Fetch all items
+                const response = await axios.get(`${API_BASE_URL}/api/menu/`); // Fetch all items
                 setMenuItems(response.data);
             } catch (err) {
                 setError(err);

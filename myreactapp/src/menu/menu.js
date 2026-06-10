@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './menu.css';
 import { CartContext } from '../cart/CartContext'; 
+import { API_BASE_URL } from '../config';
 
 const Menu = () => {
     const [menuItems, setMenuItems] = useState([]);
@@ -14,7 +15,7 @@ const Menu = () => {
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/menu/');
+                const response = await axios.get(`${API_BASE_URL}/api/menu/`);
                 setMenuItems(response.data);
             } catch (err) {
                 setError(err);

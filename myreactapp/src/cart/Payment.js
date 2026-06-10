@@ -4,6 +4,7 @@ import { CartContext } from '../cart/CartContext';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
 import './payment.css'; 
+import { API_BASE_URL } from '../config';
 
 const Payment = () => {
     const navigate = useNavigate();
@@ -27,7 +28,7 @@ const Payment = () => {
                         }))
                     };
 
-                    const response = await axios.post('http://localhost:8000/api/cart/', payload);
+                    const response = await axios.post(`${API_BASE_URL}/api/cart/`, payload);
 
                     // Clear the cart items
                     clearCart();

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from './config';
 
 const IList = () => {
     const [items, setItems] = useState([]);
@@ -8,7 +9,7 @@ const IList = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/items/');
+                const response = await axios.get(`${API_BASE_URL}/api/items/`);
                 setItems(response.data);
                 setLoading(false);
             } catch (error) {

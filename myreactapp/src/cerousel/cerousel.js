@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './cerousel.css'
+import { API_BASE_URL } from '../config';
 
 const Carousel = () => {
     const [images, setImages] = useState([]);
@@ -8,7 +9,7 @@ const Carousel = () => {
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/restaurants/'); 
+                const response = await fetch(`${API_BASE_URL}/api/restaurants/`); 
                 const data = await response.json();
 
                 // Use slice to get the first five images directly

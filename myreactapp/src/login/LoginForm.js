@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './login.css'; 
 import { useAuth } from '../AuthContext';
 import axios from 'axios'; 
+import { API_BASE_URL } from '../config';
 
 const LoginForm = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -15,7 +16,7 @@ const LoginForm = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/UserList/');
+                const response = await axios.get(`${API_BASE_URL}/api/UserList/`);
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error fetching users:', error);

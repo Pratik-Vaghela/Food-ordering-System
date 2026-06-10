@@ -1,0 +1,8 @@
+asgiref
+dj-database-url
+django
+django-cors-headers
+djangorestframework
+gunicorn
+psycopg2-binary
+whitenoise

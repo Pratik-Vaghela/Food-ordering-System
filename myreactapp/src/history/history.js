@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import axios from 'axios'; 
 import './History.css';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 const History = () => {
     const [history, setHistory] = useState([]);
@@ -15,7 +16,7 @@ const History = () => {
             // Fetch the history for the logged-in user
             const fetchHistory = async () => {
                 try {
-                    const response = await axios.get('http://localhost:8000/api/HistoryList/');
+                    const response = await axios.get(`${API_BASE_URL}/api/HistoryList/`);
                     const allHistory = response.data;
 
                     // Filter history based on the logged-in user's username

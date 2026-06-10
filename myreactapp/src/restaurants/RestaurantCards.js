@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './restaurants.css';
+import { API_BASE_URL } from '../config';
 
 const RestaurantCards = () => {
     const [restaurants, setRestaurants] = useState([]);
@@ -12,7 +13,7 @@ const RestaurantCards = () => {
     useEffect(() => {
         const fetchRestaurants = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/restaurants/');
+                const response = await axios.get(`${API_BASE_URL}/api/restaurants/`);
                 setRestaurants(response.data);
             } catch (err) {
                 setError(err);
