@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Item, Restaurants, Menu, CartItems
@@ -19,10 +19,20 @@ class RestaurantsList(generics.ListAPIView):
     queryset = Restaurants.objects.all()
     serializer_class = RestaurantsSerializer
 
+class RestaurantDetail(generics.RetrieveAPIView):
+    queryset = Restaurants.objects.all()
+    serializer_class = RestaurantsSerializer
+
 
 class MenuList(generics.ListAPIView):
-    queryset = Menu.objects.all()
     serializer_class = MenuSerializer
+
+    def get_queryset(self):
+        queryset = Menu.objects.all()
+        restaurant_id = self.request.query_params.get('restaurant')
+        if restaurant_id is not None:
+            queryset = queryset.filter(restaurant_id=restaurant_id)
+        return queryset
 
 
 class ItemList(generics.ListCreateAPIView):
@@ -30,35 +40,36 @@ class ItemList(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 
 class HistoryList(generics.ListAPIView):
-    queryset = CartItems.objects.all()
     serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return CartItems.objects.filter(user=self.request.user)
     
 
 class CartCreate(generics.CreateAPIView):
     serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        user_name = request.data.get('user')
         items = request.data.get('items', [])
 
-        print("Received user_name:", user_name)  # Debugging line
+        print("Creating cart for user:", request.user.username)  # Debugging line
         print("Received items:", items)  # Debugging line
 
-        if not user_name or not items:
-            return Response({'error': 'User name and items are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not items:
+            return Response({'error': 'Items are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save each item to the Cart model
+        # Save each item linked to the authenticated user
         for item in items:
             item_data = {
-                'user_name': user_name,
-                # 'item_id': item['item_id'],
                 'item_name': item['item_name'],
                 'item_price': item['item_price'],
                 'quantity': item['quantity']
             }
             serializer = self.get_serializer(data=item_data)
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(user=request.user)
             else:
                 print("Validation error:", serializer.errors)  # Debugging line
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

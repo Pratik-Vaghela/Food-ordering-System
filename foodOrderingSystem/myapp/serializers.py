@@ -21,9 +21,11 @@ class RestaurantsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 class CartSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
     class Meta:
         model = CartItems
-        fields = ['user_name', 'item_name', 'item_price', 'quantity']        
+        fields = ['user', 'item_name', 'item_price', 'quantity']        
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

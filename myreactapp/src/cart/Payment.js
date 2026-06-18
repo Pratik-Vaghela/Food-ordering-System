@@ -9,7 +9,7 @@ import { API_BASE_URL } from '../config';
 const Payment = () => {
     const navigate = useNavigate();
     const { cartItems, clearCart, clearCount } = useContext(CartContext);
-    const { user } = useAuth();
+    const { user, getAuthHeaders } = useAuth();
     const [loading, setLoading] = useState(false); // State to manage loading
 
     const handlePayNow = async () => {
@@ -20,7 +20,6 @@ const Payment = () => {
             try {
                 if (user) {
                     const payload = {
-                        user: user.username,
                         items: cartItems.map(item => ({
                             item_name: item.name,
                             item_price: item.price,
@@ -28,7 +27,9 @@ const Payment = () => {
                         }))
                     };
 
-                    await axios.post(`${API_BASE_URL}/api/cart/`, payload);
+                    await axios.post(`${API_BASE_URL}/api/cart/`, payload, {
+                        headers: getAuthHeaders()
+                    });
 
                     // Clear the cart items
                     clearCart();

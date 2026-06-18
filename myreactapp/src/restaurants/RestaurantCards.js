@@ -53,7 +53,7 @@ const RestaurantCards = () => {
             <div className="restaurant-cards">
                 {filteredRestaurants.length > 0 ? (
                     filteredRestaurants.map(restaurant => (
-                        <Link to={`/menu`} key={restaurant.id} className="card-link">
+                        <Link to={`/restaurants/${restaurant.id}/menu`} key={restaurant.id} className="card-link">
                             <div className="card">
                                 <img src={restaurant.image} alt={restaurant.name} />
                                 <h2>{restaurant.name}</h2>

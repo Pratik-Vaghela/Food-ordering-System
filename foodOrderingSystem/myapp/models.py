@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Item(models.Model):
@@ -21,10 +22,11 @@ class Menu(models.Model):
     price = models.IntegerField()
     image = models.URLField()
     id = models.IntegerField(primary_key=True)
+    restaurant = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='menu_items', null=True, blank=True)
 
 
 class CartItems(models.Model):
-    user_name = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
     # item_id = models.FloatField(default=0)
     item_name = models.CharField(max_length=255)
     item_price = models.DecimalField(max_digits=10, decimal_places=2)

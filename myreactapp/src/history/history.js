@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../config';
 const History = () => {
     const [history, setHistory] = useState([]);
     const [error, setError] = useState('');
-    const { user } = useAuth(); 
+    const { user, getAuthHeaders } = useAuth(); 
     const navigate = useNavigate();
     useEffect(() => {
         // Check if the user is logged in
@@ -16,13 +16,10 @@ const History = () => {
             // Fetch the history for the logged-in user
             const fetchHistory = async () => {
                 try {
-                    const response = await axios.get(`${API_BASE_URL}/api/HistoryList/`);
-                    const allHistory = response.data;
-
-                    // Filter history based on the logged-in user's username
-                    const userHistory = allHistory.filter(item => item.user_name === user.username);
-
-                    setHistory(userHistory); // Store the filtered history data
+                    const response = await axios.get(`${API_BASE_URL}/api/HistoryList/`, {
+                        headers: getAuthHeaders()
+                    });
+                    setHistory(response.data); // Store the filtered history data returned by server
                 } catch (error) {
                     console.error('Error fetching history:', error);
                     setError('Failed to fetch purchase history.'); // Set error message if failed
@@ -34,7 +31,7 @@ const History = () => {
             setError('User is not logged in. Please log in to view your history.');
             navigate('/');
         }
-    }, [user, navigate]);
+    }, [user, navigate, getAuthHeaders]);
 
     return (
         <div className="history-container">

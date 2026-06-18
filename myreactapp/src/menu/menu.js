@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './menu.css';
 import { CartContext } from '../cart/CartContext'; 
 import { API_BASE_URL } from '../config';
 
 const Menu = () => {
+    const { id } = useParams(); // Get restaurant ID from the URL
+    const [restaurant, setRestaurant] = useState(null);
     const [menuItems, setMenuItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,19 +15,31 @@ const Menu = () => {
     const { addToCart } = useContext(CartContext); 
 
     useEffect(() => {
-        const fetchMenuItems = async () => {
+        const fetchRestaurantAndMenu = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/menu/`);
-                setMenuItems(response.data);
+                setLoading(true);
+                setError(null);
+                
+                // Fetch both restaurant details and menu items associated with this restaurant
+                const [restaurantRes, menuRes] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/api/restaurants/${id}/`),
+                    axios.get(`${API_BASE_URL}/api/menu/?restaurant=${id}`)
+                ]);
+                
+                setRestaurant(restaurantRes.data);
+                setMenuItems(menuRes.data);
             } catch (err) {
+                console.error("Error loading menu page data:", err);
                 setError(err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchMenuItems();
-    }, []);
+        if (id) {
+            fetchRestaurantAndMenu();
+        }
+    }, [id]);
 
     const handleSearch = () => {
         if (!searchQuery.trim()) {
@@ -37,11 +52,38 @@ const Menu = () => {
 
     const filteredMenuItems = handleSearch();
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error loading menu items: {error.message}</div>;
+    if (loading) return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '16px' }}>
+            <div className="loader" style={{ width: '50px', height: '50px', borderRadius: '50%', border: '5px solid #f3f3f3', borderTop: '5px solid #FF5733', animation: 'spin 1s linear infinite' }}></div>
+            <p style={{ color: '#7f8c8d', fontSize: '18px', fontWeight: '500' }}>Loading delicious menu...</p>
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
+        </div>
+    );
+
+    if (error) return (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#c0392b', fontWeight: '500' }}>
+            <h3>Error loading menu</h3>
+            <p>{error.message || "Please try again later."}</p>
+        </div>
+    );
 
     return (
         <div>
+            {restaurant && (
+                <div className="restaurant-header-banner">
+                    <img src={restaurant.image} alt={restaurant.name} className="banner-img" />
+                    <div className="banner-details">
+                        <h1>{restaurant.name}</h1>
+                        <p className="banner-meta">⭐ {restaurant.rating} ● {restaurant.duration} ● {restaurant.location}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="search-bar">
                 <input
                     type="text"
@@ -51,6 +93,7 @@ const Menu = () => {
                 />
                 <button onClick={handleSearch}>Search</button>
             </div>
+            
             <div className="menu-cards">
                 {filteredMenuItems.length > 0 ? (
                     filteredMenuItems.map(item => (
@@ -78,7 +121,9 @@ const Menu = () => {
                         </div>
                     ))
                 ) : (
-                    <div>No menu items found.</div>
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#7f8c8d', padding: '40px', fontSize: '18px', fontWeight: '500' }}>
+                        No menu items found.
+                    </div>
                 )}
             </div>
         </div>

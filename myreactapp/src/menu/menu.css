@@ -164,3 +164,38 @@
 .card-content button:active {
   transform: translateY(0);
 }
+
+.restaurant-header-banner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 24px;
+  margin: 30px auto;
+  max-width: 1400px;
+  width: calc(100% - 80px);
+  border: 1px solid #f0f0f0;
+}
+
+.restaurant-header-banner .banner-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.restaurant-header-banner .banner-details h1 {
+  font-size: 28px;
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.restaurant-header-banner .banner-meta {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 500;
+}
