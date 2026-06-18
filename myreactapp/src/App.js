@@ -11,6 +11,7 @@ import { AuthProvider } from './AuthContext';
 import { CartProvider } from './cart/CartContext'; 
 import Payment from './cart/Payment';
 import History from './history/history';
+import Profile from './profile/Profile';
 
 function App() {
     return (
@@ -27,6 +28,7 @@ function App() {
                             <Route path="/cart" element={<><Navbar /><Cart/><Footer/></>} />
                             <Route path="/payment" element={<><Navbar /><Payment /><Footer/></>} /> 
                             <Route path="/history" element={<><Navbar/><History/><Footer/></>}/>
+                            <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
                         </Routes>
                     </Router>
                 </CartProvider>

@@ -25,13 +25,19 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (userData) => {
+        if (userData.email) localStorage.setItem('email', userData.email);
+        if (userData.username) localStorage.setItem('username', userData.username);
+        setUser(prev => prev ? { ...prev, ...userData } : null);
+    };
+
     const getAuthHeaders = () => {
         const token = localStorage.getItem('access_token');
         return token ? { Authorization: `Bearer ${token}` } : {};
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, getAuthHeaders }}>
+        <AuthContext.Provider value={{ user, login, logout, getAuthHeaders, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     ItemList, UserCreate, RestaurantsList, RestaurantDetail, MenuList,
-    CartCreate, HistoryList, MyTokenObtainPairView
+    CartCreate, HistoryList, MyTokenObtainPairView, UserProfileView
 )
 
 urlpatterns = [
@@ -15,4 +15,5 @@ urlpatterns = [
     path('menu/', MenuList.as_view(), name='menu-list'),
     path('cart/', CartCreate.as_view(), name='cart-create'),
     path('HistoryList/', HistoryList.as_view(), name='purchase-history'),
+    path('profile/', UserProfileView.as_view(), name='user-profile'),
 ]

@@ -38,15 +38,31 @@ const History = () => {
             <h2>Purchase History</h2>
             {error && <p className="error-message">{error}</p>}
             {history.length > 0 ? (
-                <ul>
+                <div className="receipt-grid">
                     {history.map((item, index) => (
-                        <li key={index}>
-                            {item.item_name} - ₹{item.item_price} x {item.quantity} = ₹{item.item_price * item.quantity}
-                        </li>
+                        <div key={index} className="receipt-card animate-card" style={{ animationDelay: `${index * 40}ms` }}>
+                            <div className="receipt-header">
+                                <span className="receipt-badge">SUCCESSFUL ORDER</span>
+                                <span className="receipt-date">Receipt #{index + 1001}</span>
+                            </div>
+                            <div className="receipt-body">
+                                <h3 className="receipt-item-name">{item.item_name}</h3>
+                                <div className="receipt-details">
+                                    <span>Price: ₹{item.item_price}</span>
+                                    <span>Quantity: {item.quantity}</span>
+                                </div>
+                            </div>
+                            <div className="receipt-footer">
+                                <span className="receipt-total-label">Total Paid:</span>
+                                <span className="receipt-total-value">₹{item.item_price * item.quantity}</span>
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             ) : (
-                <p>No purchase history found.</p>
+                <p style={{ textAlign: 'center', color: '#64748b', padding: '40px', fontWeight: '500' }}>
+                    No purchase history found.
+                </p>
             )}
         </div>
     );

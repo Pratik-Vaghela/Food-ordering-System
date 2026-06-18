@@ -50,17 +50,28 @@ const RestaurantCards = () => {
                 />
                 <button onClick={handleSearch}>Search</button>
             </div>
-            <div className="restaurant-cards">
+            <div className="restaurant-cards animate-fade-in">
                 {filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map(restaurant => (
-                        <Link to={`/restaurants/${restaurant.id}/menu`} key={restaurant.id} className="card-link">
-                            <div className="card">
-                                <img src={restaurant.image} alt={restaurant.name} />
-                                <h2>{restaurant.name}</h2>
-                                <div>
-                                    <p className="rating">⭐ {restaurant.rating} ● {restaurant.duration}</p>
+                    filteredRestaurants.map((restaurant, index) => (
+                        <Link 
+                            to={`/restaurants/${restaurant.id}/menu`} 
+                            key={restaurant.id} 
+                            className="card-link"
+                            style={{ animationDelay: `${index * 60}ms` }}
+                        >
+                            <div className="card animate-card">
+                                <div className="card-img-wrapper">
+                                    <img src={restaurant.image} alt={restaurant.name} />
                                 </div>
-                                <p>{restaurant.location}</p>
+                                <div className="card-info">
+                                    <h2>{restaurant.name}</h2>
+                                    <div className="card-rating-row">
+                                        <span className="rating-badge">⭐ {restaurant.rating}</span>
+                                        <span className="dot-divider">•</span>
+                                        <span className="duration-tag">{restaurant.duration}</span>
+                                    </div>
+                                    <p className="location-tag">{restaurant.location}</p>
+                                </div>
                             </div>
                         </Link>
                     ))
