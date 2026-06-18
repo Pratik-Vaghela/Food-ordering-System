@@ -60,8 +60,24 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',') if origin.strip()]
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000').split(',') if origin.strip()]
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',') if origin.strip()
+]
+
+# Ensure CSRF_TRUSTED_ORIGINS always has a scheme prefix (http:// or https://) to prevent validation errors at startup
+CSRF_TRUSTED_ORIGINS = []
+for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000').split(','):
+    origin = origin.strip()
+    if origin:
+        if not origin.startswith('http://') and not origin.startswith('https://'):
+            if 'localhost' in origin or '127.0.0.1' in origin:
+                origin = 'http://' + origin
+            else:
+                origin = 'https://' + origin
+        CSRF_TRUSTED_ORIGINS.append(origin)
 
 ROOT_URLCONF = 'foodOrderingSystem.urls'
 
@@ -88,8 +104,13 @@ WSGI_APPLICATION = 'foodOrderingSystem.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 if os.getenv('DATABASE_URL') and dj_database_url:
+    db_ssl_require = os.getenv('DATABASE_SSL_REQUIRE', 'True').lower() == 'true'
     DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600, ssl_require=True)
+        'default': dj_database_url.parse(
+            os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=db_ssl_require
+        )
     }
 else:
     DATABASES = {
@@ -158,3 +179,13 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
 }
+
+# Security Headers & Cookies for Production Deployment
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
