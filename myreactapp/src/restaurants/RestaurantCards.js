@@ -7,37 +7,135 @@ import { FiStar, FiClock, FiMapPin, FiSearch } from 'react-icons/fi';
 
 const RestaurantCards = () => {
     const [restaurants, setRestaurants] = useState([]);
-    const [allMenuItems, setAllMenuItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+    
     // Suggestions state
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    
     const dropdownRef = useRef(null);
+    const observerRef = useRef(null);
     const navigate = useNavigate();
+    
+    const searchTimeoutRef = useRef(null);
+    const listTimeoutRef = useRef(null);
 
-    // Fetch Restaurants and all Menu Items on load
+    // Fetch restaurants from backend
+    const fetchRestaurants = async (pageNum, isInitial = false) => {
+        try {
+            if (isInitial) {
+                setLoading(true);
+            } else {
+                setLoadingMore(true);
+            }
+            setError(null);
+            
+            let url = `${API_BASE_URL}/api/restaurants/?page=${pageNum}`;
+            if (searchQuery.trim()) {
+                url += `&search=${encodeURIComponent(searchQuery)}`;
+            }
+            if (activeFilter !== 'all') {
+                url += `&filter=${encodeURIComponent(activeFilter)}`;
+            }
+            
+            const res = await axios.get(url);
+            const newRestaurants = res.data.results || [];
+            const nextUrl = res.data.next;
+            
+            if (isInitial) {
+                setRestaurants(newRestaurants);
+            } else {
+                setRestaurants(prev => [...prev, ...newRestaurants]);
+            }
+            
+            setHasMore(!!nextUrl);
+        } catch (err) {
+            console.error("Error loading restaurants list:", err);
+            setError(err);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    // Reload list on search query or filter capsule updates (debounced)
     useEffect(() => {
-        const fetchRestaurantsAndMenu = async () => {
-            try {
-                const [restaurantsRes, menuRes] = await Promise.all([
-                    axios.get(`${API_BASE_URL}/api/restaurants/`),
-                    axios.get(`${API_BASE_URL}/api/menu/`)
-                ]);
-                setRestaurants(restaurantsRes.data);
-                setAllMenuItems(menuRes.data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
+        if (listTimeoutRef.current) {
+            clearTimeout(listTimeoutRef.current);
+        }
+
+        listTimeoutRef.current = setTimeout(() => {
+            setPage(1);
+            fetchRestaurants(1, true);
+        }, 300);
+
+        return () => {
+            if (listTimeoutRef.current) {
+                clearTimeout(listTimeoutRef.current);
             }
         };
+    }, [activeFilter, searchQuery]);
 
-        fetchRestaurantsAndMenu();
-    }, []);
+    // IntersectionObserver scroll trigger for loading subsequent pages
+    useEffect(() => {
+        if (loading) return;
+
+        const observer = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore && !loadingMore) {
+                setPage(prev => {
+                    const nextPageNum = prev + 1;
+                    fetchRestaurants(nextPageNum, false);
+                    return nextPageNum;
+                });
+            }
+        }, { threshold: 1.0 });
+
+        const currentTarget = observerRef.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [loading, hasMore, loadingMore]);
+
+    // Fetch search suggestions on search input (debounced by 300ms)
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setSuggestions([]);
+            return;
+        }
+
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+
+        searchTimeoutRef.current = setTimeout(async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/search-suggestions/?q=${encodeURIComponent(searchQuery)}`);
+                setSuggestions(res.data);
+            } catch (err) {
+                console.error("Error loading suggestions:", err);
+            }
+        }, 300);
+
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
+    }, [searchQuery]);
 
     // Close suggestions dropdown when clicking outside
     useEffect(() => {
@@ -52,41 +150,6 @@ const RestaurantCards = () => {
         };
     }, []);
 
-    // Suggestion engine matching cuisines, restaurants, and dish names
-    useEffect(() => {
-        if (!searchQuery.trim()) {
-            setSuggestions([]);
-            return;
-        }
-
-        const query = searchQuery.toLowerCase();
-        
-        // 1. Match Cuisines list
-        const cuisinesList = ['Chinese', 'Burgers', 'Pizzas', 'Bakery', 'Sandwiches', 'Snacks', 'South Indian', 'Mexican', 'North Indian', 'Gujarati'];
-        const matchedCuisines = cuisinesList
-            .filter(c => c.toLowerCase().includes(query))
-            .map(c => ({ type: 'cuisine', name: c }));
-
-        // 2. Match Restaurants list
-        const matchedRestaurants = restaurants
-            .filter(r => r.name.toLowerCase().includes(query))
-            .map(r => ({ type: 'restaurant', name: r.name, id: r.id }));
-
-        // 3. Match Dishes list
-        const matchedDishes = allMenuItems
-            .filter(item => item.name.toLowerCase().includes(query))
-            .map(item => ({ type: 'dish', name: item.name, restaurantId: item.restaurant }));
-
-        // Combine and limit suggestions (e.g., max 2 cuisines, 3 restaurants, 4 dishes)
-        const combined = [
-            ...matchedCuisines.slice(0, 2),
-            ...matchedRestaurants.slice(0, 3),
-            ...matchedDishes.slice(0, 5)
-        ];
-
-        setSuggestions(combined);
-    }, [searchQuery, restaurants, allMenuItems]);
-
     const handleSuggestionClick = (suggestion) => {
         if (suggestion.type === 'restaurant') {
             navigate(`/restaurants/${suggestion.id}/menu`);
@@ -94,44 +157,6 @@ const RestaurantCards = () => {
             setSearchQuery(suggestion.name);
             setShowSuggestions(false);
         }
-    };
-
-    const handleSearch = () => {
-        let list = restaurants;
-
-        // Apply text search
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            
-            // Filter restaurants serving the queried dish, cuisine, or matching restaurant name
-            list = list.filter(r => {
-                const nameMatches = r.name.toLowerCase().includes(query);
-                const cuisineMatches = getCuisine(r.name).toLowerCase().includes(query);
-                
-                const hasMatchingDish = allMenuItems.some(item => 
-                    item.restaurant === r.id && item.name.toLowerCase().includes(query)
-                );
-
-                return nameMatches || cuisineMatches || hasMatchingDish;
-            });
-        }
-
-        // Apply filter pill
-        if (activeFilter === 'rating') {
-            list = list.filter(r => r.rating >= 4.5);
-        } else if (activeFilter === 'fast') {
-            list = list.filter(r => {
-                const minutes = parseInt(r.duration) || 40;
-                return minutes <= 30;
-            });
-        } else if (activeFilter === 'quick') {
-            const keywords = ['burger', 'pizza', 'bakery', 'snacks', 'vadapav', 'kfc', 'sandwich', 'cafe', 'fries', 'bite'];
-            list = list.filter(r => 
-                keywords.some(kw => r.name.toLowerCase().includes(kw))
-            );
-        }
-
-        return list;
     };
 
     const getCuisine = (name) => {
@@ -146,8 +171,6 @@ const RestaurantCards = () => {
         if (lowerName.includes('gujarati') || lowerName.includes('thali') || lowerName.includes('punjabi') || lowerName.includes('bhaji') || lowerName.includes('chole')) return 'North Indian • Gujarati • Thalis';
         return 'Fast Food • Beverages • Snacks';
     };
-
-    const filteredRestaurants = handleSearch();
 
     if (loading) return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '16px' }}>
@@ -243,8 +266,8 @@ const RestaurantCards = () => {
             </div>
 
             <div className="restaurant-cards animate-fade-in">
-                {filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map((restaurant, index) => (
+                {restaurants.length > 0 ? (
+                    restaurants.map((restaurant, index) => (
                         <Link 
                             to={`/restaurants/${restaurant.id}/menu`} 
                             key={restaurant.id} 
@@ -280,6 +303,13 @@ const RestaurantCards = () => {
                     <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#64748b', padding: '48px', fontSize: '18px', fontWeight: '600' }}>
                         No restaurants found matching your selection.
                     </div>
+                )}
+            </div>
+
+            {/* Infinite Scroll target observer */}
+            <div ref={observerRef} style={{ height: '30px', margin: '24px 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {loadingMore && (
+                    <div className="loader" style={{ width: '30px', height: '30px', borderRadius: '50%', border: '3px solid #e2e8f0', borderTop: '3px solid #ff5200', animation: 'spin 1s linear infinite' }}></div>
                 )}
             </div>
         </div>

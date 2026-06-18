@@ -13,6 +13,7 @@ import Payment from './cart/Payment';
 import History from './history/history';
 import Profile from './profile/Profile';
 import FloatingCart from './cart/FloatingCart';
+import ScrollToTop from './ScrollToTop';
 
 function App() {
     return (
@@ -20,7 +21,7 @@ function App() {
             <AuthProvider>
                 <CartProvider>
                     <Router>
-                        
+                        <ScrollToTop />
                         <Routes>
                             <Route path='/signin' element={<><Navbar /><UserForm /><Footer /></>} />
                             <Route path='/' element={<><Navbar /><RestaurantCards /><Footer /></>} />

@@ -67,6 +67,13 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip() for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',') if origin.strip()
 ]
 
+# Safeguard: Always ensure local frontend origins are allowed when running locally (even if DEBUG=False)
+if any(host in ALLOWED_HOSTS for host in ['localhost', '127.0.0.1']):
+    if 'http://localhost:3000' not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append('http://localhost:3000')
+    if 'http://127.0.0.1:3000' not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append('http://127.0.0.1:3000')
+
 # Ensure CSRF_TRUSTED_ORIGINS always has a scheme prefix (http:// or https://) to prevent validation errors at startup
 CSRF_TRUSTED_ORIGINS = []
 for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000').split(','):

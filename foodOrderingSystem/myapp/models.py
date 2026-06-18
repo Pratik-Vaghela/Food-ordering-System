@@ -10,7 +10,7 @@ class Item(models.Model):
 
 
 class Restaurants(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     image = models.URLField()
     rating = models.FloatField()
     duration = models.CharField(max_length=20)
@@ -18,7 +18,7 @@ class Restaurants(models.Model):
     
     
 class Menu(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     price = models.IntegerField()
     image = models.URLField()
     id = models.IntegerField(primary_key=True)
