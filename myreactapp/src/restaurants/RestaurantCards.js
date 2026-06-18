@@ -20,9 +20,12 @@ const RestaurantCards = () => {
     // Suggestions state
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isSearchSticky, setIsSearchSticky] = useState(false);
     
     const dropdownRef = useRef(null);
+    const stickyDropdownRef = useRef(null);
     const observerRef = useRef(null);
+    const heroRef = useRef(null);
     const navigate = useNavigate();
     
     const searchTimeoutRef = useRef(null);
@@ -139,7 +142,9 @@ const RestaurantCards = () => {
     // Close suggestions dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            const inHero = dropdownRef.current && dropdownRef.current.contains(event.target);
+            const inSticky = stickyDropdownRef.current && stickyDropdownRef.current.contains(event.target);
+            if (!inHero && !inSticky) {
                 setShowSuggestions(false);
             }
         };
@@ -147,6 +152,18 @@ const RestaurantCards = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
+    }, []);
+
+    // Sticky search bar: show when hero scrolls out of viewport
+    useEffect(() => {
+        const hero = heroRef.current;
+        if (!hero) return;
+        const obs = new IntersectionObserver(
+            ([entry]) => setIsSearchSticky(!entry.isIntersecting),
+            { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+        );
+        obs.observe(hero);
+        return () => obs.unobserve(hero);
     }, []);
 
     const handleSuggestionClick = (suggestion) => {
@@ -193,8 +210,46 @@ const RestaurantCards = () => {
 
     return (
         <div className="homepage-container">
+
+            {/* ── Sticky Search Bar (appears when hero scrolls out of view) ── */}
+            <div className={`sticky-search-bar ${isSearchSticky ? 'sticky-search-bar--visible' : ''}`}>
+                <div className="sticky-search-inner" ref={stickyDropdownRef}>
+                    <div className="sticky-search-field">
+                        <FiSearch className="search-input-icon" style={{ color: '#ff5200' }} />
+                        <input
+                            type="text"
+                            placeholder="Search for restaurants, cuisines or dishes..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                        />
+                    </div>
+                    {showSuggestions && suggestions.length > 0 && (
+                        <div className="suggestions-dropdown-box animate-scale-in" style={{ top: '52px' }}>
+                            {suggestions.map((sug, idx) => (
+                                <div
+                                    key={idx}
+                                    className="suggestion-item"
+                                    onClick={() => handleSuggestionClick(sug)}
+                                >
+                                    <div className="suggestion-details">
+                                        <span className="suggestion-name">{sug.name}</span>
+                                    </div>
+                                    <span className={`suggestion-badge ${sug.type}`}>
+                                        {sug.type === 'cuisine' ? '🍕 Cuisine' : sug.type === 'restaurant' ? '🏪 Restaurant' : '🍔 Dish'}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* SaaS Style Hero Banner */}
-            <div className="homepage-hero-banner">
+            <div className="homepage-hero-banner" ref={heroRef}>
                 <div className="hero-content animate-scale-in">
                     <h1>Craving Something Delicious?</h1>
                     <p>Discover the best food and drinks near you.</p>
