@@ -1,17 +1,18 @@
 from django.shortcuts import render
-from rest_framework import generics  
-from .models import Item, User, Restaurants, Menu,CartItems
-from .serializers import ItemSerializer, UserSerializer, RestaurantsSerializer,MenuSerializer,CartSerializer
+from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from .models import CartItems
-from .serializers import CartSerializer
+from .models import Item, Restaurants, Menu, CartItems
+from .serializers import (
+    ItemSerializer, UserSerializer, UserRegisterSerializer,
+    RestaurantsSerializer, MenuSerializer, CartSerializer
+)
 
 
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserRegisterSerializer
 
 
 class RestaurantsList(generics.ListAPIView):
@@ -28,11 +29,6 @@ class ItemList(generics.ListCreateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
-
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    
 class HistoryList(generics.ListAPIView):
     queryset = CartItems.objects.all()
     serializer_class = CartSerializer
@@ -76,3 +72,9 @@ class PurchaseHistoryList(generics.ListAPIView):
     def get_queryset(self):
         username = self.kwargs['username']
         return CartItems.objects.filter(user_name=username)
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

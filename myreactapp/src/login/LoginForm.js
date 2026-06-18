@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css'; 
 import { useAuth } from '../AuthContext';
@@ -8,60 +8,35 @@ import { API_BASE_URL } from '../config';
 const LoginForm = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
-    const [users, setUsers] = useState([]); // State to store all users
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
-
-    // Fetch all users using axios
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/api/UserList/`);
-                setUsers(response.data);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
-
-        fetchUsers();
-    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setCredentials({ ...credentials, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Reset error message
+        setError('');
+        setLoading(true);
 
-        let validUser = null; // Variable to store the matched user
-
-        // Iterate over the users using a loop to validate the credentials
-        for (let user of users) {
-            if (user.username === credentials.username) {
-                if (user.password === credentials.password) {
-                    validUser = user;
-                    login(user)
-                     
-                    // Set the valid user if both username and password match
-                    break; 
-                } else {
-                    setError('Incorrect password. Please try again.');
-                    return; // Exit the function after finding the user and incorrect password
-                }
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/token/`, credentials);
+            // response.data contains { access, refresh, username, email }
+            login(response.data);
+            navigate('/'); // Redirect to home
+        } catch (err) {
+            console.error('Login error:', err);
+            if (err.response && err.response.status === 401) {
+                setError('Incorrect username or password. Please try again.');
+            } else {
+                setError('Failed to login. Please try again later.');
             }
+        } finally {
+            setLoading(false);
         }
-
-        // If no user was found, show the appropriate error
-        if (!validUser) {
-            setError('Username not found. Please try again.');
-            return;
-        }
-
-        // If credentials are valid, log in the user
-        login(validUser);
-        navigate('/'); // Redirect to home
     };
 
     return (
@@ -76,6 +51,7 @@ const LoginForm = () => {
                     value={credentials.username}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                 />
                 <input
                     type="password"
@@ -84,8 +60,11 @@ const LoginForm = () => {
                     value={credentials.password}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                 />
-                <button type="submit">Login</button>
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Logging in...' : 'Login'}
+                </button>
             </form>
         </div>
     );

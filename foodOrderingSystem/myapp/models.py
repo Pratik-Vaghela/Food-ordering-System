@@ -23,12 +23,6 @@ class Menu(models.Model):
     id = models.IntegerField(primary_key=True)
 
 
-class User(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # Store hashed password
-
-
 class CartItems(models.Model):
     user_name = models.CharField(max_length=50)
     # item_id = models.FloatField(default=0)
