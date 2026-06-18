@@ -809,3 +809,98 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .menu-page-wrapper {
+    padding: 0 16px;
+  }
+
+  .restaurant-header-banner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 16px;
+    margin: 20px 0;
+  }
+
+  .restaurant-header-banner .banner-details h1 {
+    font-size: 26px;
+  }
+
+  .restaurant-header-banner .banner-meta {
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  /* Make category index bar sticky and horizontal under navbar */
+  .menu-sidebar-index {
+    position: sticky;
+    top: 70px;
+    z-index: 90;
+    background-color: white;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .sidebar-title {
+    display: none;
+  }
+
+  .sidebar-list {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .sidebar-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar-item {
+    flex-shrink: 0;
+  }
+
+  .sidebar-link {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+    background-color: var(--neutral-light);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .link-bullet {
+    display: none;
+  }
+
+  .count-badge {
+    padding: 1px 6px;
+    font-size: 10px;
+  }
+
+  .menu-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px 0 48px;
+  }
+
+  .menu-category-section {
+    scroll-margin-top: 150px; /* Keep sticky bar from covering section title */
+  }
+
+  .reviews-tab-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .add-review-panel {
+    padding: 20px;
+  }
+}

@@ -310,11 +310,38 @@
 }
 
 @media (max-width: 500px) {
+  .profile-page-wrapper {
+    margin: 20px auto;
+    padding: 0 12px;
+  }
+  
+  .profile-container {
+    border-radius: 12px;
+  }
+
+  .profile-card-left {
+    padding: 24px 16px;
+  }
+
+  .profile-form-right {
+    padding: 24px 16px;
+  }
+
+  .form-header h2 {
+    font-size: 20px;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   
   .form-grid .form-group {
     grid-column: span 1 !important;
+  }
+
+  .save-settings-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

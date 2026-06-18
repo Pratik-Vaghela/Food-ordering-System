@@ -67,3 +67,11 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+@media (max-width: 520px) {
+  .payment-container {
+    margin: 24px 16px;
+    padding: 24px 16px;
+    max-width: 100%;
+  }
+}

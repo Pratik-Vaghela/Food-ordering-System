@@ -87,3 +87,11 @@
   border-radius: 6px;
   border-left: 3px solid #EA4335;
 }
+
+@media (max-width: 480px) {
+  .form-container {
+    margin: 32px 16px;
+    padding: 24px;
+    max-width: 100%;
+  }
+}
