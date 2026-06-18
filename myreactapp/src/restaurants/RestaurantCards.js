@@ -13,8 +13,8 @@ const RestaurantCards = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     
-    // Pagination state
-    const [page, setPage] = useState(1);
+    // Pagination state (ref avoids stale-closure issues inside IntersectionObserver)
+    const pageRef = useRef(1);
     const [hasMore, setHasMore] = useState(false);
     
     // Suggestions state
@@ -73,7 +73,7 @@ const RestaurantCards = () => {
         }
 
         listTimeoutRef.current = setTimeout(() => {
-            setPage(1);
+            pageRef.current = 1;
             fetchRestaurants(1, true);
         }, 300);
 
@@ -82,6 +82,7 @@ const RestaurantCards = () => {
                 clearTimeout(listTimeoutRef.current);
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeFilter, searchQuery]);
 
     // IntersectionObserver scroll trigger for loading subsequent pages
@@ -90,11 +91,8 @@ const RestaurantCards = () => {
 
         const observer = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore && !loadingMore) {
-                setPage(prev => {
-                    const nextPageNum = prev + 1;
-                    fetchRestaurants(nextPageNum, false);
-                    return nextPageNum;
-                });
+                pageRef.current += 1;
+                fetchRestaurants(pageRef.current, false);
             }
         }, { threshold: 1.0 });
 
@@ -108,6 +106,7 @@ const RestaurantCards = () => {
                 observer.unobserve(currentTarget);
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loading, hasMore, loadingMore]);
 
     // Fetch search suggestions on search input (debounced by 300ms)
