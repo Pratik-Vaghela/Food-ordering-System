@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Item,Restaurants,Menu,CartItems
+from .models import Item,Restaurants,Menu,CartItems,Review
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,3 +61,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
         read_only_fields = ['username']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'rating', 'comment', 'created_at']

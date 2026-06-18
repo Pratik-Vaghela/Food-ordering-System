@@ -272,3 +272,64 @@
   background-color: var(--neutral-light);
   border-color: var(--neutral-gray);
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 12px 16px;
+  }
+  .logo img {
+    height: 32px;
+  }
+  .nav-links {
+    gap: 8px;
+  }
+  .nav-links a {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .profile-badge-btn {
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  .username-text {
+    max-width: 80px;
+  }
+  .cart-badge-link {
+    padding: 6px 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links a span, 
+  .login-link span, 
+  .signin-link span {
+    display: none; /* Hide link labels, show icons only */
+  }
+  .nav-links a, .login-link, .signin-link {
+    padding: 8px !important;
+    border-radius: 50% !important; /* Circle style for icons */
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+  .cart-badge-link {
+    border-radius: 9999px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 6px 12px !important;
+  }
+  .cart-badge-link span {
+    display: inline !important; /* Keep cart count visible */
+  }
+  .username-text {
+    display: none; /* Hide username text on tiny mobile, just show avatar */
+  }
+  .profile-badge-btn {
+    padding: 2px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  .chevron-icon {
+    display: none;
+  }
+}

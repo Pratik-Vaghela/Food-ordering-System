@@ -131,3 +131,17 @@
     padding: 0 10px;
   }
 }
+
+@media (max-width: 480px) {
+  .footer-columns {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 30px 16px;
+  }
+  .footer-column {
+    padding: 0;
+  }
+  .footer-links {
+    gap: 12px;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { CartContext } from './CartContext'; 
 import { useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../AuthContext'; 
@@ -8,6 +8,7 @@ const Cart = () => {
     const { cartItems } = useContext(CartContext); 
     const { user } = useAuth(); 
     const navigate = useNavigate(); 
+    const [showLoginWarning, setShowLoginWarning] = useState(false);
 
     const getTotal = () => {
         return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -15,10 +16,8 @@ const Cart = () => {
 
     const handleCheckout = () => {
         if (!user) {
-            // If the user is not logged in, redirect to the login page
-            navigate('/login');
+            setShowLoginWarning(true);
         } else {
-            // If the user is logged in, redirect to the payment page
             navigate('/payment'); 
         }
     };
@@ -36,6 +35,16 @@ const Cart = () => {
                         ))}
                     </ul>
                     <h3>Total: ₹{getTotal()}</h3>
+                    
+                    {showLoginWarning && !user && (
+                        <div className="checkout-warning-box animate-scale-in">
+                            <p className="warning-text">⚠️ You will have to log in first to check out.</p>
+                            <button className="checkout-login-btn" onClick={() => navigate('/login')}>
+                                Log In to Checkout
+                            </button>
+                        </div>
+                    )}
+
                     <button onClick={handleCheckout}>Checkout</button>
                 </div>
             ) : (

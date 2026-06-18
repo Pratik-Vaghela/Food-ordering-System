@@ -1,12 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Item, Restaurants, Menu, CartItems
+from .models import Item, Restaurants, Menu, CartItems, Review
 from .serializers import (
     ItemSerializer, UserSerializer, UserRegisterSerializer,
-    RestaurantsSerializer, MenuSerializer, CartSerializer
+    RestaurantsSerializer, MenuSerializer, CartSerializer, ReviewSerializer
 )
 
 
@@ -96,3 +96,18 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class RestaurantReviewListCreateView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def get_queryset(self):
+        return Review.objects.filter(restaurant_id=self.kwargs['restaurant_id']).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        restaurant = get_object_or_404(Restaurants, id=self.kwargs['restaurant_id'])
+        serializer.save(user=self.request.user, restaurant=restaurant)

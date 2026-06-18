@@ -34,7 +34,7 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
     };
 
     // Extract first letter of username for avatar

@@ -100,3 +100,50 @@
   border-radius: 16px;
   border: 2px dashed var(--border-color);
 }
+
+/* Guest Checkout Warning box styling */
+.checkout-warning-box {
+  background-color: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.checkout-warning-box .warning-text {
+  color: var(--danger-color) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+.checkout-login-btn {
+  background: var(--neutral-dark) !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  width: auto !important;
+  box-shadow: var(--shadow-sm) !important;
+  display: inline-block !important;
+}
+
+.checkout-login-btn:hover {
+  background-color: #1e293b !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
